@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error {{ error_code }} - TaskFlow</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .error-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 60px 40px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .error-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2, #f093fb, #f5576c);
+            background-size: 300% 100%;
+            animation: gradient 3s ease infinite;
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .error-icon {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .error-icon i {
+            color: white;
+            font-size: 40px;
+        }
+
+        .error-code {
+            font-size: 72px;
+            font-weight: 900;
+            color: #2d3748;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .error-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 15px;
+        }
+
+        .error-message {
+            color: #718096;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .error-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            color: white;
+            text-decoration: none;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.8);
+            color: #4a5568;
+            border: 2px solid #e2e8f0;
+        }
+
+        .btn-secondary:hover {
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            color: #4a5568;
+            text-decoration: none;
+        }
+
+        .floating-shapes {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+        }
+
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .shape:nth-child(1) {
+            width: 80px;
+            height: 80px;
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .shape:nth-child(2) {
+            width: 120px;
+            height: 120px;
+            top: 60%;
+            right: 15%;
+            animation-delay: -2s;
+        }
+
+        .shape:nth-child(3) {
+            width: 60px;
+            height: 60px;
+            bottom: 20%;
+            left: 20%;
+            animation-delay: -4s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        .error-details {
+            background: rgba(248, 250, 252, 0.8);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 30px;
+            text-align: left;
+        }
+
+        .error-details h4 {
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .error-details ul {
+            color: #718096;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-left: 20px;
+        }
+
+        .error-details li {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-shapes">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+
+    <div class="error-container">
+        <div class="error-icon">
+            <i class="fas fa-{% if error_code == 404 %}search{% elif error_code == 500 %}server{% else %}exclamation-triangle{% endif %}"></i>
+        </div>
+
+        <div class="error-code">{{ error_code }}</div>
+        
+        <h1 class="error-title">
+            {% if error_code == 404 %}
+                Página No Encontrada
+            {% elif error_code == 500 %}
+                Error del Servidor
+            {% elif error_code == 403 %}
+                Acceso Denegado
+            {% else %}
+                Algo Salió Mal
+            {% endif %}
+        </h1>
+
+        <p class="error-message">
+            {% if error_code == 404 %}
+                La página que estás buscando no existe o ha sido movida. Verifica la URL o navega desde el menú principal.
+            {% elif error_code == 500 %}
+                Estamos experimentando problemas técnicos. Nuestro equipo ha sido notificado y estamos trabajando para solucionarlo.
+            {% elif error_code == 403 %}
+                No tienes permisos para acceder a este recurso. Inicia sesión con una cuenta autorizada.
+            {% else %}
+                {{ error_message or "Ha ocurrido un error inesperado. Por favor, intenta nuevamente." }}
+            {% endif %}
+        </p>
+
+        <div class="error-actions">
+            <a href="{{ url_for('index') }}" class="btn btn-primary">
+                <i class="fas fa-home"></i>
+                Volver al Inicio
+            </a>
+            
+            <a href="javascript:history.back()" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i>
+                Página Anterior
+            </a>
+        </div>
+
+        {% if error_code == 404 %}
+        <div class="error-details">
+            <h4>¿Qué puedes hacer?</h4>
+            <ul>
+                <li>Verifica que la URL esté escrita correctamente</li>
+                <li>Regresa a la página principal y navega desde allí</li>
+                <li>Usa el botón "Página Anterior" para volver</li>
+                <li>Si el problema persiste, contacta al soporte</li>
+            </ul>
+        </div>
+        {% elif error_code == 500 %}
+        <div class="error-details">
+            <h4>Información técnica:</h4>
+            <ul>
+                <li>Error interno del servidor</li>
+                <li>El equipo técnico ha sido notificado automáticamente</li>
+                <li>Intenta recargar la página en unos minutos</li>
+                <li>Si persiste, reporta el error a soporte@taskflow.com</li>
+            </ul>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        // Animación de entrada
+        window.addEventListener('load', function() {
+            const container = document.querySelector('.error-container');
+            container.style.opacity = '0';
+            container.style.transform = 'translateY(30px) scale(0.95)';
+            container.style.transition = 'all 0.6s ease';
+            
+            setTimeout(() => {
+                container.style.opacity = '1';
+                container.style.transform = 'translateY(0) scale(1)';
+            }, 100);
+        });
+
+        // Auto-recargar cada 30 segundos si es error 500
+        {% if error_code == 500 %}
+        let countdown = 30;
+        const reloadTimer = setInterval(() => {
+            countdown--;
+            if (countdown <= 0) {
+                location.reload();
+            }
+        }, 1000);
+        
+        // Mostrar contador (opcional)
+        const messageElement = document.querySelector('.error-message');
+        if (messageElement) {
+            const originalMessage = messageElement.textContent;
+            const countdownInterval = setInterval(() => {
+                } else {
+                    clearInterval(countdownInterval);
+                }
+            }, 1000);
+        }
+        {% endif %}
+    </script>
+</body>
+</html>

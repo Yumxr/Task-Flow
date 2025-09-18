@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Tareas - TaskFlow</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(45deg, #f093fb, #f5576c);
+            --success-gradient: linear-gradient(45deg, #4facfe, #00f2fe);
+            --warning-gradient: linear-gradient(45deg, #43e97b, #38f9d7);
+            --danger-gradient: linear-gradient(45deg, #ff6b6b, #ee5a24);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: none;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: #667eea !important;
+        }
+
+        .navbar-text {
+            color: #667eea !important;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .stat-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2d3748;
+        }
+
+        .stat-label {
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .task-item {
+            background: #f7fafc;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid #e2e8f0;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .task-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .task-item.status-no-iniciado { border-left-color: #cbd5e0; }
+        .task-item.status-en-proceso { border-left-color: #f6ad55; }
+        .task-item.status-finalizado { border-left-color: #48bb78; }
+        .task-item.status-en-problemas { border-left-color: #f56565; }
+
+        .task-title {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 5px;
+            font-size: 16px;
+        }
+
+        .task-description {
+            color: #718096;
+            font-size: 14px;
+            line-height: 1.4;
+            margin-bottom: 10px;
+        }
+
+        .task-meta {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-top: 15px;
+            font-size: 12px;
+            color: #a0aec0;
+            flex-wrap: wrap;
+        }
+
+        .task-meta .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .status-badge.no-iniciado { background: #edf2f7; color: #4a5568; }
+        .status-badge.en-proceso { background: #fef5e7; color: #c05621; }
+        .status-badge.finalizado { background: #f0fff4; color: #276749; }
+        .status-badge.en-problemas { background: #fed7d7; color: #c53030; }
+
+        .status-select {
+            padding: 6px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 12px;
+            background: white;
+            cursor: pointer;
+            min-width: 120px;
+        }
+
+        .form-control, .form-select {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        /* ESTILOS MEJORADOS PARA EL INPUT DATE */
+        input[type="date"] {
+            background: white;
+            color: #2d3748;
+            font-family: 'Inter', sans-serif;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px 16px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        input[type="date"]:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            outline: none;
+        }
+
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            background: transparent;
+            color: #667eea;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        input[type="date"]::-webkit-calendar-picker-indicator:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        input[type="date"]::-webkit-datetime-edit {
+            color: #2d3748;
+        }
+
+        input[type="date"]::-webkit-datetime-edit-text {
+            color: #a0aec0;
+            padding: 0 2px;
+        }
+
+        input[type="date"]::-webkit-datetime-edit-month-field,
+        input[type="date"]::-webkit-datetime-edit-day-field,
+        input[type="date"]::-webkit-datetime-edit-year-field {
+            color: #2d3748;
+            font-weight: 500;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+
+        input[type="date"]::-webkit-datetime-edit-month-field:focus,
+        input[type="date"]::-webkit-datetime-edit-day-field:focus,
+        input[type="date"]::-webkit-datetime-edit-year-field:focus {
+            background: rgba(102, 126, 234, 0.1);
+            outline: none;
+        }
+
+        .btn-primary {
+            background: var(--primary-gradient);
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-outline-light:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(45deg, #48bb78, #38a169);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(72, 187, 120, 0.3);
+            z-index: 1000;
+            font-weight: 500;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            background: var(--danger-gradient);
+        }
+
+        .filter-bar {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-bar select {
+            min-width: 150px;
+        }
+
+        .task-actions {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .task-action-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.7);
+            color: #4a5568;
+        }
+
+        .task-action-btn:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: scale(1.1);
+        }
+
+        .task-action-btn.delete {
+            color: #e53e3e;
+        }
+
+        .task-action-btn.edit {
+            color: #667eea;
+        }
+
+        .date-info {
+            font-size: 11px;
+            color: #a0aec0;
+            margin-top: 5px;
+        }
+
+        .overdue {
+            color: #e53e3e;
+            font-weight: 600;
+        }
+
+        .due-soon {
+            color: #dd6b20;
+            font-weight: 600;
+        }
+
+        .task-priority {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .priority-high { background: #e53e3e; }
+        .priority-medium { background: #dd6b20; }
+        .priority-low { background: #48bb78; }
+
+        /* ESTILOS PARA LA GESTIÓN DE CATEGORÍAS */
+        .category-manager {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        .category-list {
+            margin-top: 15px;
+        }
+
+        .category-item {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 8px;
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .category-name {
+            flex: 1;
+            color: #2d3748;
+            font-weight: 500;
+        }
+
+        .category-delete {
+            background: none;
+            border: none;
+            color: #e53e3e;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            font-size: 12px;
+        }
+
+        .category-delete:hover {
+            background: rgba(229, 62, 62, 0.1);
+            color: #c53030;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-state i {
+            font-size: 64px;
+            color: #cbd5e0;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h3 {
+            color: #4a5568;
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            color: #a0aec0;
+        }
+
+        @media (max-width: 768px) {
+            .filter-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .filter-bar select {
+                min-width: 100%;
+            }
+            
+            .task-actions {
+                position: static;
+                justify-content: flex-end;
+                margin-top: 10px;
+            }
+
+            .category-item {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg mb-4 glass-card">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-tasks me-2"></i>TaskFlow
+            </a>
+            <div class="d-flex align-items-center">
+                <span class="navbar-text me-3">Hola, {{ session.username }}</span>
+                <div class="user-avatar me-2">
+                    {{ session.username[0]|upper }}
+                </div>
+                <a class="btn btn-outline-light btn-sm" href="{{ url_for('logout') }}">
+                    <i class="fas fa-sign-out-alt me-1"></i>Cerrar Sesión
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Stats Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="glass-card p-3 text-center stat-card" onclick="filterTasks('')">
+                    <div class="stat-icon" style="background: var(--primary-gradient);">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <div class="stat-number">{{ stats.total }}</div>
+                    <div class="stat-label">Total Tareas</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="glass-card p-3 text-center stat-card" onclick="filterTasks('en proceso')">
+                    <div class="stat-icon" style="background: var(--secondary-gradient);">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-number">{{ stats['en proceso'] }}</div>
+                    <div class="stat-label">En Proceso</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="glass-card p-3 text-center stat-card" onclick="filterTasks('finalizado')">
+                    <div class="stat-icon" style="background: var(--success-gradient);">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-number">{{ stats.finalizado }}</div>
+                    <div class="stat-label">Completadas</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="glass-card p-3 text-center stat-card" onclick="filterTasks('en problemas')">
+                    <div class="stat-icon" style="background: var(--danger-gradient);">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="stat-number">{{ stats['en problemas'] }}</div>
+                    <div class="stat-label">En Problemas</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="filter-bar glass-card">
+            <div class="d-flex align-items-center gap-3 flex-wrap">
+                <label class="form-label mb-0">Filtrar por:</label>
+                <select class="form-select form-select-sm" id="statusFilter" onchange="applyFilters()">
+                    <option value="">Todos los estados</option>
+                    <option value="no iniciado" {{ 'selected' if current_status == 'no iniciado' }}>No iniciado</option>
+                    <option value="en proceso" {{ 'selected' if current_status == 'en proceso' }}>En proceso</option>
+                    <option value="finalizado" {{ 'selected' if current_status == 'finalizado' }}>Finalizado</option>
+                    <option value="en problemas" {{ 'selected' if current_status == 'en problemas' }}>En problemas</option>
+                </select>
+                
+                <select class="form-select form-select-sm" id="categoryFilter" onchange="applyFilters()">
+                    <option value="">Todas las categorías</option>
+                    {% for category in categories %}
+                    <option value="{{ category.id }}" {{ 'selected' if current_category == category.id|string }}>{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+                
+                <button class="btn btn-outline-primary btn-sm" onclick="clearFilters()">
+                    <i class="fas fa-times"></i> Limpiar
+                </button>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Add Task Section -->
+            <div class="col-lg-4 mb-4">
+                <div class="glass-card p-4">
+                    <h5 class="mb-4">
+                        <i class="fas fa-plus-circle me-2" style="color: #667eea;"></i>
+                        Nueva Tarea
+                    </h5>
+                    
+                    <form method="POST" action="{{ url_for('add_task_route') }}">
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Título *</label>
+                            <input type="text" class="form-control" id="title" name="title" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Descripción</label>
+                            <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="category_id" class="form-label">Categoría</label>
+                            <select class="form-select" id="category_id" name="category_id">
+                                <option value="">Sin categoría</option>
+                                {% for category in categories %}
+                                <option value="{{ category.id }}">{{ category.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="start_date" class="form-label">Fecha de inicio</label>
+                                <input type="date" class="form-control" id="start_date" name="start_date">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="end_date" class="form-label">Fecha límite</label>
+                                <input type="date" class="form-control" id="end_date" name="end_date">
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-plus me-2"></i>
+                            Crear Tarea
+                        </button>
+                    </form>
+
+                    <!-- Gestión de Categorías Mejorada -->
+                    <div class="category-manager">
+                        <h6 class="mb-3">
+                            <i class="fas fa-tags me-2" style="color: #667eea;"></i>
+                            Gestionar Categorías
+                        </h6>
+                        
+                        <form method="POST" action="{{ url_for('add_category_route') }}" class="mb-3">
+                            <div class="input-group">
+                                <input type="text" class="form-control" name="category_name" placeholder="Nueva categoría" required>
+                                <button type="submit" class="btn btn-outline-primary">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <div class="category-list">
+                            {% for category in categories %}
+                            <div class="category-item" data-category-id="{{ category.id }}">
+                                <span class="category-name">{{ category.name }}</span>
+                                <button class="category-delete" onclick="deleteCategory('{{ category.id }}', '{{ category.name }}')" title="Eliminar categoría">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tasks Section -->
+            <div class="col-lg-8">
+                <div class="glass-card p-4">
+                    <h5 class="mb-4">
+                        <i class="fas fa-list-check me-2" style="color: #667eea;"></i>
+                        Mis Tareas
+                        {% if current_status or current_category %}
+                        <small class="text-muted">(Filtradas)</small>
+                        {% endif %}
+                    </h5>
+
+                    {% if tasks %}
+                        {% for task in tasks %}
+                        <div class="task-item status-{{ task.status.replace(' ', '-') }}" data-task-id="{{ task.id }}">
+                            <div class="task-actions">
+                                <button class="task-action-btn edit" title="Editar tarea">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="task-action-btn delete" onclick="deleteTask('{{ task.id }}')" title="Eliminar tarea">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="task-content">
+                                <div class="task-title">{{ task.title }}</div>
+                                {% if task.description %}
+                                <div class="task-description">{{ task.description }}</div>
+                                {% endif %}
+                                
+                                <div class="d-flex justify-content-between align-items-center mt-3">
+                                    <select class="status-select" data-task-id="{{ task.id }}">
+                                        <option value="no iniciado" {% if task.status == 'no iniciado' %}selected{% endif %}>No iniciado</option>
+                                        <option value="en proceso" {% if task.status == 'en proceso' %}selected{% endif %}>En proceso</option>
+                                        <option value="finalizado" {% if task.status == 'finalizado' %}selected{% endif %}>Finalizado</option>
+                                        <option value="en problemas" {% if task.status == 'en problemas' %}selected{% endif %}>En problemas</option>
+                                    </select>
+                                    
+                                    <div class="status-badge {{ task.status.replace(' ', '-') }}">
+                                        {% if task.status == 'no iniciado' %}
+                                            <i class="fas fa-pause"></i>
+                                        {% elif task.status == 'en proceso' %}
+                                            <i class="fas fa-spinner"></i>
+                                        {% elif task.status == 'finalizado' %}
+                                            <i class="fas fa-check"></i>
+                                        {% elif task.status == 'en problemas' %}
+                                            <i class="fas fa-exclamation-triangle"></i>
+                                        {% endif %}
+                                        {{ task.status }}
+                                    </div>
+                                </div>
+                                
+                                <div class="task-meta">
+                                    {% if task.start_date %}
+                                    <div class="meta-item">
+                                        <i class="fas fa-play"></i>
+                                        <span>Inicio: {{ task.start_date }}</span>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    {% if task.end_date %}
+                                    <div class="meta-item">
+                                        <i class="fas fa-flag-checkered"></i>
+                                        <span>Fin: {{ task.end_date }}</span>
+                                        {% set days = task.end_date | days_until %}
+                                        {% if days is not none %}
+                                            {% if days < 0 %}
+                                                <span class="overdue">({{ -days }} días vencido)</span>
+                                            {% elif days <= 3 %}
+                                                <span class="due-soon">({{ days }} días restantes)</span>
+                                            {% endif %}
+                                        {% endif %}
+                                    </div>
+                                    {% endif %}
+                                    
+                                    <div class="meta-item">
+                                        <i class="fas fa-tag"></i>
+                                        <span>{{ task.category_name or 'Sin categoría' }}</span>
+                                    </div>
+                                    
+                                    <div class="meta-item">
+                                        <i class="fas fa-clock"></i>
+                                        <span>{{ task.created_at | format_date if task.created_at else 'Sin fecha' }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-state">
+                            <i class="fas fa-clipboard-list"></i>
+                            <h3>No hay tareas</h3>
+                            <p>
+                                {% if current_status or current_category %}
+                                No se encontraron tareas con los filtros aplicados.
+                                {% else %}
+                                No hay tareas registradas. ¡Agrega tu primera tarea!
+                                {% endif %}
+                            </p>
+                            {% if current_status or current_category %}
+                            <button class="btn btn-outline-primary" onclick="clearFilters()">
+                                Limpiar filtros
+                            </button>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Element -->
+    <div class="notification" id="notification" style="display: none;"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Actualizar estado de tarea
+        document.querySelectorAll('.status-select').forEach(select => {
+            select.addEventListener('change', function() {
+                const taskId = this.dataset.taskId;
+                const status = this.value;
+                const taskItem = this.closest('.task-item');
+                
+                // Actualizar clases visuales
+                taskItem.className = `task-item status-${status.replace(' ', '-')}`;
+                taskItem.setAttribute('data-task-id', taskId);
+                
+                // Actualizar el badge de estado
+                const badge = taskItem.querySelector('.status-badge');
+                badge.className = `status-badge ${status.replace(' ', '-')}`;
+                badge.innerHTML = getStatusIcon(status) + status;
+                
+                // Enviar actualización al servidor
+                fetch(`/update_task_status/${taskId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ status: status })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showNotification('Estado actualizado correctamente', 'success');
+                        updateStats();
+                    } else {
+                        showNotification('Error al actualizar el estado', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showNotification('Error al actualizar el estado', 'error');
+                });
+            });
+        });
+
+        // Eliminar tarea
+        function deleteTask(taskId) {
+            if (!confirm('¿Estás seguro de que quieres eliminar esta tarea?')) {
+                return;
+            }
+            
+            fetch(`/delete_task/${taskId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('Tarea eliminada correctamente', 'success');
+                    document.querySelector(`[data-task-id="${taskId}"]`).remove();
+                    updateStats();
+                } else {
+                    showNotification('Error al eliminar la tarea', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Error al eliminar la tarea', 'error');
+            });
+        }
+
+        // NUEVA FUNCIÓN: Eliminar categoría
+        function deleteCategory(categoryId, categoryName) {
+            if (!confirm(`¿Estás seguro de que quieres eliminar la categoría "${categoryName}"?\n\nLas tareas de esta categoría se moverán a "Sin categoría".`)) {
+                return;
+            }
+            
+            fetch(`/delete_category/${categoryId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('Categoría eliminada correctamente', 'success');
+                    // Remover la categoría de la lista
+                    document.querySelector(`[data-category-id="${categoryId}"]`).remove();
+                    // Remover del select de filtros
+                    const filterSelect = document.getElementById('categoryFilter');
+                    const option = filterSelect.querySelector(`option[value="${categoryId}"]`);
+                    if (option) option.remove();
+                    // Remover del select de nueva tarea
+                    const taskCategorySelect = document.getElementById('category_id');
+                    const taskOption = taskCategorySelect.querySelector(`option[value="${categoryId}"]`);
+                    if (taskOption) taskOption.remove();
+                    // Actualizar la página si se está filtrando por esta categoría
+                    if (document.getElementById('categoryFilter').value === categoryId) {
+                        window.location.reload();
+                    }
+                } else {
+                    showNotification('Error al eliminar la categoría', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Error al eliminar la categoría', 'error');
+            });
+        }
+
+        // Función para obtener el ícono según el estado
+        function getStatusIcon(status) {
+            switch(status) {
+                case 'no iniciado':
+                    return '<i class="fas fa-pause me-1"></i>';
+                case 'en proceso':
+                    return '<i class="fas fa-spinner me-1"></i>';
+                case 'finalizado':
+                    return '<i class="fas fa-check me-1"></i>';
+                case 'en problemas':
+                    return '<i class="fas fa-exclamation-triangle me-1"></i>';
+                default:
+                    return '';
+            }
+        }
+
+        // Función para mostrar notificaciones
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.display = 'block';
+            
+            if (type === 'success') {
+                notification.style.background = 'linear-gradient(45deg, #48bb78, #38a169)';
+                notification.classList.remove('error');
+            } else {
+                notification.style.background = 'linear-gradient(45deg, #f56565, #e53e3e)';
+                notification.classList.add('error');
+            }
+            
+            notification.classList.add('show');
+            
+            // Ocultar después de 3 segundos
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                }, 300);
+            }, 3000);
+        }
+
+        // Filtros
+        function filterTasks(status) {
+            const url = new URL(window.location);
+            if (status) {
+                url.searchParams.set('status', status);
+            } else {
+                url.searchParams.delete('status');
+            }
+            window.location.href = url.toString();
+        }
+
+        function applyFilters() {
+            const status = document.getElementById('statusFilter').value;
+            const category = document.getElementById('categoryFilter').value;
+            
+            const url = new URL(window.location);
+            
+            if (status) {
+                url.searchParams.set('status', status);
+            } else {
+                url.searchParams.delete('status');
+            }
+            
+            if (category) {
+                url.searchParams.set('category', category);
+            } else {
+                url.searchParams.delete('category');
+            }
+            
+            window.location.href = url.toString();
+        }
+
+        function clearFilters() {
+            window.location.href = '/tasks';
+        }
+
+        // Función para actualizar estadísticas
+        function updateStats() {
+            fetch('/api/stats')
+                .then(response => response.json())
+                .then(data => {
+                    document.querySelectorAll('.stat-number').forEach((el, index) => {
+                        switch(index) {
+                            case 0: el.textContent = data.total; break;
+                            case 1: el.textContent = data['en proceso']; break;
+                            case 2: el.textContent = data.finalizado; break;
+                            case 3: el.textContent = data['en problemas']; break;
+                        }
+                    });
+                })
+                .catch(error => console.error('Error updating stats:', error));
+        }
+
+        // Establecer fecha mínima para los inputs de fecha
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('start_date').min = today;
+            document.getElementById('end_date').min = today;
+            
+            // Validación de fechas
+            document.getElementById('start_date').addEventListener('change', function() {
+                const endDateInput = document.getElementById('end_date');
+                endDateInput.min = this.value;
+                if (endDateInput.value && endDateInput.value < this.value) {
+                    endDateInput.value = this.value;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
