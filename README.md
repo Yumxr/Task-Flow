@@ -49,18 +49,3 @@ La arquitectura de TaskFlow está dividida en cuatro componentes principales que
 🗄️ Base de Datos (MongoDB): Utiliza MongoDB para almacenar la información de usuarios, tareas y categorías. Los índices están optimizados para un alto rendimiento.
 
 🤖 Bot de Telegram (Integración Externa): Usa Webhooks para una comunicación en tiempo real y ofrece comandos interactivos para gestionar tareas desde la plataforma de mensajería.
-
-⚙️ Instalación y Configuración
-Sigue estos pasos para poner en marcha el sistema:
-
-Clonar el Repositorio: Usa git clone https://github.com/tu-usuario/taskflow.git para obtener el código fuente.
-
-Configurar Entorno Virtual: Crea y activa un entorno virtual con python -m venv taskflow_env.
-
-Instalar Dependencias: Instala los paquetes necesarios ejecutando pip install -r requirements.txt.
-
-Configurar MongoDB: Asegúrate de tener MongoDB instalado y ejecutándose.
-
-Variables de Entorno: Crea un archivo .env en la raíz del proyecto para configurar la base de datos, las claves de seguridad y los tokens de Telegram.
-
-Inicializar Base de Datos: Ejecuta python -c "from database import init_db; init_db()" para preparar la base de datos.
